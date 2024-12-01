@@ -1,1 +1,4 @@
-(executables (names) (public_names) (libraries))
+(executables
+ (names q1)
+ (public_names day3_q1)
+ (libraries))
