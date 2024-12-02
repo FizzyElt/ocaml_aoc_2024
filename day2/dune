@@ -1,4 +1,11 @@
 (executable
  (name q1)
  (public_name day2_q1)
+ (modules q1 common)
+ (libraries lib))
+
+(executable
+ (name q2)
+ (public_name day2_q2)
+ (modules q2 common)
  (libraries lib))
