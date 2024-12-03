@@ -2,3 +2,8 @@
  (name q1)
  (public_name day3_q1)
  (libraries lib str))
+
+(executable
+ (name q2)
+ (public_name day3_q2)
+ (libraries lib str))
