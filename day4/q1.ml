@@ -3,7 +3,8 @@ open Lib
 let check_all_road board row col =
   let direction = [ 1, 0; 1, 1; 0, 1; -1, 1; -1, 0; -1, -1; 0, -1; 1, -1 ] in
   direction
-  |> List.filter (fun (m_x, m_y) -> Common.check_road board row col 4 m_x m_y = "XMAS")
+  |> List.filter (fun (m_x, m_y) ->
+    Common.check_road board (row, col) 4 (m_x, m_y) = "XMAS")
   |> List.length
 ;;
 
