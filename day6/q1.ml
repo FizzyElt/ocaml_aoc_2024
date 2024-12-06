@@ -54,7 +54,6 @@ let result (list : string list) =
     list |> List.map (fun line -> line |> String.to_seq |> Array.of_seq) |> Array.of_list
   in
   let guard_pos = find_guard board in
-  Printf.printf "%d, %d\n" (fst guard_pos) (snd guard_pos);
   let new_board = move guard_pos Up board in
   new_board
   |> Array.fold_left
