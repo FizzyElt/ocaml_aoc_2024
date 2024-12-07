@@ -1,4 +1,5 @@
 open Lib
+open Day4lib
 
 let check_all_road board row col =
   let direction = [ 1, 0; 1, 1; 0, 1; -1, 1; -1, 0; -1, -1; 0, -1; 1, -1 ] in

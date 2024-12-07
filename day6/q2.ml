@@ -142,5 +142,5 @@ let () =
   let file = args.(1) in
   let list = File.read_list_of_line Fun.id file in
   let res = result list in
-  print_int res
+  Printf.printf "%d\n" res
 ;;

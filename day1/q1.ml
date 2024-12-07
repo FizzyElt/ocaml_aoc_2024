@@ -1,4 +1,5 @@
 open Lib
+open Day1lib
 
 let sum_of_diff pair_of_list =
   let left_list, right_list = pair_of_list in

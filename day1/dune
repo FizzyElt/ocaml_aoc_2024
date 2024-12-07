@@ -1,11 +1,10 @@
-(executable
- (name q1)
- (public_name day1_q1)
- (modules q1 common)
- (libraries lib))
+(executables
+ (names q1 q2)
+ (public_names day1_q1 day1_q2)
+ (modules
+  (:standard \ common))
+ (libraries lib day1lib))
 
-(executable
- (name q2)
- (public_name day1_q2)
- (modules q2 common)
- (libraries lib))
+(library
+ (name day1lib)
+ (modules common))

@@ -1,4 +1,5 @@
 open Lib
+open Day4lib
 
 let check_four_road board row col =
   let count = ref 0 in
@@ -9,8 +10,9 @@ let check_four_road board row col =
       let start_row = row + m_x in
       let start_col = col + m_y in
       let c = board.(start_row).[start_col] in
-      if c = 'M'
-         && Common.check_road board (start_row, start_col) 3 (m_x * -1, m_y * -1) = "MAS"
+      if
+        c = 'M'
+        && Common.check_road board (start_row, start_col) 3 (m_x * -1, m_y * -1) = "MAS"
       then count := !count + 1
     with
     | Invalid_argument _ -> ());

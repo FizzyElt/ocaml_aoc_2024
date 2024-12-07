@@ -1,5 +1,5 @@
 open Lib
-open Common
+open Day5lib.Common
 
 let reorder list order_rules_map =
   let rec insert acc nums x =

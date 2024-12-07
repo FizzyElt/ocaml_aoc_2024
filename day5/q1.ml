@@ -1,10 +1,10 @@
 open Lib
-open Common
+open Day5lib.Common
 
 let result list =
   let list = list |> List.filter (fun line -> String.length line > 0) in
   let a, b = list |> List.partition (fun line -> String.contains line '|') in
-  let order_rules_map = Common.make_map a in
+  let order_rules_map = make_map a in
   let page_nums = List.map get_num_of_list b in
   List.fold_left
     (fun acc list ->

@@ -1,4 +1,5 @@
 open Lib
+open Day2lib
 
 let check_all_case_safe list =
   if Common.is_safe list
