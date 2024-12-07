@@ -1,26 +1,5 @@
 open Lib
-
-type direction =
-  | Up
-  | Down
-  | Left
-  | Right
-
-let next_pos (x, y) dir =
-  match dir with
-  | Up -> x - 1, y
-  | Down -> x + 1, y
-  | Left -> x, y - 1
-  | Right -> x, y + 1
-;;
-
-let turn_right dir =
-  match dir with
-  | Up -> Right
-  | Down -> Left
-  | Left -> Up
-  | Right -> Down
-;;
+open Day6lib.Common
 
 let rec move (x, y) dir board =
   let m_x, m_y = next_pos (x, y) dir in
@@ -33,20 +12,6 @@ let rec move (x, y) dir board =
       move (m_x, m_y) dir board)
   with
   | Invalid_argument _ -> board
-;;
-
-let find_guard board =
-  let x = ref 0 in
-  let y = ref 0 in
-  board
-  |> Array.iteri (fun row line ->
-    line
-    |> Array.iteri (fun col c ->
-      if c = '^'
-      then (
-        x := row;
-        y := col)));
-  !x, !y
 ;;
 
 let result (list : string list) =
