@@ -1,138 +1,146 @@
+open Core
 open Lib
 
-module IntPairs = struct
-  type t = int * int
+module IntTripleComparator = struct
+  module T = struct
+    type t = int * int * int
 
-  let compare (x0, y0) (x1, y1) =
-    match Stdlib.compare x0 x1 with
-    | 0 -> Stdlib.compare y0 y1
-    | c -> c
-  ;;
+    let compare (a1, b1, c1) (a2, b2, c2) =
+      match Int.compare a1 a2 with
+      | 0 ->
+        (match Int.compare b1 b2 with
+         | 0 -> Int.compare c1 c2
+         | other -> other)
+      | other -> other
+    ;;
+
+    let sexp_of_t (a, b, c) =
+      Sexp.List [ Int.sexp_of_t a; Int.sexp_of_t b; Int.sexp_of_t c ]
+    ;;
+
+    let t_of_sexp = function
+      | Sexp.List [ a; b; c ] -> Int.t_of_sexp a, Int.t_of_sexp b, Int.t_of_sexp c
+      | _ -> failwith "Invalid S-expression for int * int * int"
+    ;;
+  end
+
+  include T
+  include Comparator.Make (T)
 end
 
-module PairsSet = Set.Make (IntPairs)
+module IntTripleSet = Set.Make (IntTripleComparator)
 
-type direction =
-  | Up
-  | Down
-  | Left
-  | Right
+let directions = [| -1, 0; 0, 1; 1, 0; 0, -1 |]
+let next_direction dir = if dir >= 3 then 0 else dir + 1
+let add_pairs (x1, y1) (x2, y2) = x1 + x2, y1 + y2
 
-let next_pos (x, y) dir =
-  match dir with
-  | Up -> x - 1, y
-  | Down -> x + 1, y
-  | Left -> x, y - 1
-  | Right -> x, y + 1
-;;
-
-let turn_right dir =
-  match dir with
-  | Up -> Right
-  | Down -> Left
-  | Left -> Up
-  | Right -> Down
-;;
-
-let rec find_row (x, y) board offset =
-  try
-    let c = board.(x + offset).(y) in
-    if c = '#' then Some (x, y) else find_row (x + offset, y) board offset
-  with
-  | Invalid_argument _ -> None
-;;
-
-let rec find_col (x, y) board offset =
-  try
-    let c = board.(x).(y + offset) in
-    if c = '#' then Some (x, y) else find_col (x, y + offset) board offset
-  with
-  | Invalid_argument _ -> None
-;;
-
-let get_next_turn_pos (x, y) board dir =
-  match dir with
-  | Up -> find_row (x, y) board (-1)
-  | Down -> find_row (x, y) board 1
-  | Left -> find_col (x, y) board (-1)
-  | Right -> find_col (x, y) board 1
-;;
-
-let is_loop (origin_x, origin_y) board dir =
-  let rec loop (x, y) dir set =
-    let next_dir = turn_right dir in
-    match get_next_turn_pos (x, y) board next_dir with
-    | Some (next_x, next_y) ->
-      if (next_x, next_y) = (x, y)
-      then false
-      else if List.exists (fun (a, b) -> (a, b) = (next_x, next_y)) set
-      then true
-      else loop (next_x, next_y) next_dir ((next_x, next_y) :: set)
-    | None -> false
+let find_char_coordinates search_char grid =
+  let find_row row_index row =
+    let row_length = String.length row in
+    let rec find_col col_index acc =
+      if col_index >= row_length
+      then acc
+      else (
+        let acc =
+          if Char.equal row.[col_index] search_char
+          then (row_index, col_index) :: acc
+          else acc
+        in
+        find_col (col_index + 1) acc)
+    in
+    find_col 0 []
   in
-  match get_next_turn_pos (origin_x, origin_y) board dir with
-  | Some (x, y) -> loop (x, y) dir [ x, y ]
-  | None -> false
+  let rec find_in_grid row_index rows acc =
+    match rows with
+    | [] -> List.rev acc
+    | row :: rest ->
+      let row_coords = find_row row_index row in
+      find_in_grid (row_index + 1) rest (row_coords @ acc)
+  in
+  find_in_grid 0 grid []
 ;;
 
-let rec move (x, y) dir board visited =
-  let m_x, m_y = next_pos (x, y) dir in
-  try
-    let c = board.(m_x).(m_y) in
-    if c = '#'
-    then move (x, y) (turn_right dir) board visited
+let char_grid_to_string_grid charr =
+  Array.to_list
+    (Array.map charr ~f:(fun arr -> String.init (Array.length arr) ~f:(Array.get arr)))
+;;
+
+let find_guard map =
+  let rows = Array.length map in
+  let cols = Array.length map.(0) in
+  let rec search_row r =
+    if r >= rows
+    then 0, 0
     else (
-      let new_visited = PairsSet.add (m_x, m_y) visited in
-      move (m_x, m_y) dir board new_visited)
-  with
-  | Invalid_argument _ -> visited
-;;
-
-let check_all_move_loop (x, y) dir board = is_loop (x, y) board dir
-
-let find_guard board =
-  let x = ref 0 in
-  let y = ref 0 in
-  board
-  |> Array.iteri (fun row line ->
-    line
-    |> Array.iteri (fun col c ->
-      if c = '^'
-      then (
-        x := row;
-        y := col)));
-  !x, !y
-;;
-
-let result (list : string list) =
-  let board =
-    list |> List.map (fun line -> line |> String.to_seq |> Array.of_seq) |> Array.of_list
+      let rec search_col c =
+        if c >= cols
+        then None
+        else if Char.equal map.(r).(c) '^'
+        then Some (r, c)
+        else search_col (c + 1)
+      in
+      match search_col 0 with
+      | None when r + 1 < rows -> search_row (r + 1)
+      | None -> 0, 0
+      | Some pos -> pos)
   in
-  let guard_pos = find_guard board in
-  let visited =
-    move guard_pos Up board PairsSet.empty
-    (* [ fst guard_pos, snd guard_pos, Up
-      ; fst guard_pos, snd guard_pos, Down
-      ; fst guard_pos, snd guard_pos, Left
-      ; fst guard_pos, snd guard_pos, Right
-      ] *)
-  in
-  visited
-  |> PairsSet.elements
-  |> List.fold_left
-       (fun acc (x, y) ->
-          if guard_pos = (x, y)
-          then acc
-          else (
-            board.(x).(y) <- '#';
-            let loop = check_all_move_loop guard_pos Up board in
-            board.(x).(y) <- '.';
-            if loop
-            then
-              (* Printf.printf "%d, %d\n" x y; *)
-              acc + 1
-            else acc))
-       0
+  search_row 0
 ;;
 
-let () = Sys.argv.(1) |> File.read_list_of_line Fun.id |> result |> print_int
+let rec loopsearch map (gx, gy) direction (prepos : IntTripleSet.t) =
+  let nx, ny = add_pairs (gx, gy) directions.(direction) in
+  let current_position = gx, gy, direction in
+  if nx >= Array.length map || ny >= Array.length map.(0) || nx < 0 || ny < 0
+  then 0
+  else if Set.mem prepos current_position
+  then 1
+  else if Char.equal map.(nx).(ny) '#'
+  then loopsearch map (gx, gy) (next_direction direction) prepos
+  else (
+    let updated_prepos = Set.add prepos current_position in
+    loopsearch map (nx, ny) direction updated_prepos)
+;;
+
+let rec move_guard map (gx, gy) direction =
+  let nx, ny = add_pairs (gx, gy) directions.(direction) in
+  let _ = map.(gx).(gy) <- 'X' in
+  if nx >= Array.length map || ny >= Array.length map.(0) || nx < 0 || ny < 0
+  then map
+  else if Char.equal map.(nx).(ny) '#'
+  then move_guard map (gx, gy) (next_direction direction)
+  else move_guard map (nx, ny) direction
+;;
+
+let construct_char_grid (s : string list) =
+  List.map s ~f:(fun s -> Stdlib.String.to_seq s |> Stdlib.Array.of_seq) |> Array.of_list
+;;
+
+let gen_blocker_maps (map : char array array) =
+  let newblockers = find_char_coordinates 'X' (char_grid_to_string_grid map) in
+  List.map newblockers ~f:(fun (x, y) ->
+    let blockedmap = Array.map ~f:(fun map -> Array.copy map) map |> Array.copy in
+    let _ = blockedmap.(x).(y) <- '#' in
+    blockedmap)
+;;
+
+let result list =
+  let map = construct_char_grid list in
+  let guardstart = find_guard map in
+  let newmap = move_guard map guardstart 0 in
+  let _ = newmap.(fst guardstart).(snd guardstart) <- '^' in
+  let blocked_maps = gen_blocker_maps newmap in
+  let res =
+    List.map blocked_maps ~f:(fun map ->
+      let prepos = IntTripleSet.empty in
+      loopsearch map guardstart 0 prepos)
+  in
+  List.fold_left res ~init:0 ~f:(fun acc i -> acc + i)
+;;
+
+let () =
+  let args = Sys.get_argv () in
+  let file = args.(1) in
+  let list = File.read_list_of_line Fun.id file in
+  let res = result list in
+  print_int res
+;;

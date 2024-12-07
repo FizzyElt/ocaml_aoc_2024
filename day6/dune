@@ -6,4 +6,9 @@
 (executable
  (name q2)
  (public_name day6_q2)
- (libraries lib))
+ (libraries lib core))
+
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))
