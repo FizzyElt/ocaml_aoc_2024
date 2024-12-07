@@ -3,12 +3,3 @@
  (public_name day6_q1)
  (libraries lib))
 
-(executable
- (name q2)
- (public_name day6_q2)
- (libraries lib core))
-
-(env
- (dev
-  (flags
-   (:standard -warn-error -A))))
