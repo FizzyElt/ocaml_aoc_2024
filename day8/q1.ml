@@ -1,7 +1,7 @@
 open Lib
 open Day8lib.Common
 
-let get_antinodes pos_a pos_b =
+let find_antinodes pos_a pos_b =
   let diff = sub_pair pos_a pos_b in
   let ll = add_pair pos_a diff in
   let rr = sub_pair pos_b diff in
@@ -9,16 +9,16 @@ let get_antinodes pos_a pos_b =
 ;;
 
 let get_all_antinodes list =
-  let rec loop acc list =
+  let rec all_uniq_pairs acc list =
     match list with
     | [] -> acc
     | x :: xs ->
       let antennas_pairs = xs |> List.map (fun y -> x, y) in
-      loop (antennas_pairs @ acc) xs
+      all_uniq_pairs (antennas_pairs @ acc) xs
   in
-  let uniq_antennas_pairs = loop [] list in
+  let uniq_antennas_pairs = all_uniq_pairs [] list in
   uniq_antennas_pairs
-  |> List.fold_left (fun acc (pair_a, pair_b) -> get_antinodes pair_a pair_b @ acc) []
+  |> List.fold_left (fun acc (pair_a, pair_b) -> find_antinodes pair_a pair_b @ acc) []
   |> PairSet.of_list
   |> PairSet.elements
 ;;
@@ -43,8 +43,8 @@ let set_all_antinodes (grid : char array array) =
   let antennas_pairs = CharMap.to_list antennas_map in
 
   antennas_pairs
-  |> List.map (fun (c, points) -> c, get_all_antinodes points)
-  |> List.iter (fun (_, points) ->
+  |> List.map (fun (_, points) -> get_all_antinodes points)
+  |> List.iter (fun points ->
     points
     |> List.iter (fun (row, col) ->
       match get_ele_by_matrix row col grid with

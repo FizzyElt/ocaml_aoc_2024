@@ -1,7 +1,7 @@
 open Lib
 open Day8lib.Common
 
-let get_antinodes pos_a pos_b grid =
+let find_all_antinodes pos_a pos_b grid =
   let rec loop_out_of_bound pos diff operator acc =
     let next_row, next_col = operator pos diff in
     match get_ele_by_matrix next_row next_col grid with
@@ -16,17 +16,18 @@ let get_antinodes pos_a pos_b grid =
 ;;
 
 let get_all_antinodes list grid =
-  let rec loop acc list =
+  let rec all_uniq_pairs acc list =
     match list with
     | [] -> acc
     | x :: xs ->
       let antennas_pairs = xs |> List.map (fun y -> x, y) in
-      loop (antennas_pairs @ acc) xs
+      all_uniq_pairs (antennas_pairs @ acc) xs
   in
-  let uniq_antennas_pairs = loop [] list in
+
+  let uniq_antennas_pairs = all_uniq_pairs [] list in
   uniq_antennas_pairs
   |> List.fold_left
-       (fun acc (pair_a, pair_b) -> get_antinodes pair_a pair_b grid @ acc)
+       (fun acc (pair_a, pair_b) -> find_all_antinodes pair_a pair_b grid @ acc)
        []
   |> PairSet.of_list
   |> PairSet.elements
@@ -52,8 +53,8 @@ let set_all_antinodes (grid : char array array) =
   let antennas_pairs = CharMap.to_list antennas_map in
 
   antennas_pairs
-  |> List.map (fun (c, points) -> c, get_all_antinodes points grid)
-  |> List.iter (fun (_, points) ->
+  |> List.map (fun (_, points) -> get_all_antinodes points grid)
+  |> List.iter (fun points ->
     points
     |> List.iter (fun (row, col) ->
       match get_ele_by_matrix row col grid with
@@ -69,10 +70,9 @@ let result (list : string list) =
   in
   let new_grid = set_all_antinodes grid in
   new_grid
-  |> Array.fold_left
-       (fun acc line ->
-          line |> Array.fold_left (fun acc c -> if c = '#' then acc + 1 else acc) acc)
-       0
+  |> Array.map (fun line ->
+    line |> Array.fold_left (fun acc c -> if c = '#' then acc + 1 else acc) 0)
+  |> Array.fold_left ( + ) 0
 ;;
 
 let () = Sys.argv.(1) |> File.read_list_of_line Fun.id |> result |> print_int
