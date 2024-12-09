@@ -54,9 +54,8 @@ let move_blocks (blocks : int array) (file_blocks : (int * int * int) list) =
     then (
       let count = e - s in
       let start_at = find_first_slot blocks (0, s) count in
-      if start_at = -1
-      then ()
-      else (
+      if start_at != -1
+      then (
         let _ = set_blocks blocks (i, start_at, start_at + count) in
         let _ = set_blocks blocks (-1, s, e) in
         ())));
