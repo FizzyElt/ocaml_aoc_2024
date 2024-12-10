@@ -1,0 +1,15 @@
+module IntPairs = struct
+  type t = int * int
+
+  let compare (x0, y0) (x1, y1) =
+    match Stdlib.compare x0 x1 with
+    | 0 -> Stdlib.compare y0 y1
+    | c -> c
+  ;;
+end
+
+module PairSet = Set.Make (IntPairs)
+
+let rev_pair (x, y) = y, x
+let add_pair (x0, y0) (x1, y1) = x0 + x1, y0 + y1
+let sub_pair (x0, y0) (x1, y1) = x0 - x1, y0 - y1
