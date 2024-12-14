@@ -65,7 +65,7 @@ let () =
     list
     |> List.map split_input
     |> List.map (fun (a, b, c) -> solve_equation a b c)
-    |> List.mapi (fun i (x, y) -> (x * 3) + y)
+    |> List.map (fun (x, y) -> (x * 3) + y)
     |> sum_of_list
   in
   Printf.printf "%d, %d\n" res Int.max_int
