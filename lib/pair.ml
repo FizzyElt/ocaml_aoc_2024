@@ -13,3 +13,4 @@ module PairSet = Set.Make (IntPairs)
 let rev_pair (x, y) = y, x
 let add_pair (x0, y0) (x1, y1) = x0 + x1, y0 + y1
 let sub_pair (x0, y0) (x1, y1) = x0 - x1, y0 - y1
+let mul_pair (x0, y0) (x1, y1) = x0 * x1, y0 * y1
