@@ -1,0 +1,4 @@
+(executables
+ (names q1)
+ (public_names day15_q1)
+ (libraries lib str))

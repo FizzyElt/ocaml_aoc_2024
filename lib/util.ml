@@ -18,3 +18,11 @@ let get_digit_str str =
   |> String.of_seq
   |> int_of_string
 ;;
+
+let print_grid (grid : char array array) =
+  grid
+  |> Array.iter (fun line ->
+    line |> Array.iter (fun c -> Printf.printf "%c" c);
+    Printf.printf "\n");
+  Printf.printf "\n"
+;;
