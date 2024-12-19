@@ -116,8 +116,10 @@ let process program registers =
 ;;
 
 let () =
+  (* 2; 4; 1; 1; 7; 5; 1; 5; 4; 0; 0; 3; 5; 5; 3; 0 *)
   let program = [| 2; 4; 1; 1; 7; 5; 1; 5; 4; 0; 0; 3; 5; 5; 3; 0 |] in
-  let register = [| 64196994; 0; 0 |] in
+  let _register = [| 64196994; 0; 0 |] in
+  let register = [| 16312245875300; 0; 0 |] in
   let res = process program register in
   Printf.printf "%s" res
 ;;
