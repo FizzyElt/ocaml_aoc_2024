@@ -1,0 +1,10 @@
+(executables
+ (names q1 q2)
+ (public_names day5_q1 day5_q2)
+ (modules
+  (:standard \ common))
+ (libraries lib day5lib))
+
+(library
+ (name day5lib)
+ (modules common))
